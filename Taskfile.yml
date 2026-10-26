@@ -1,0 +1,42 @@
+version: "3"
+
+env:
+  # Keep well above OVO's Cloudflare login rate limit
+  OVO_EXPORTER_INTERVAL_SECONDS: "1800"
+
+tasks:
+  default:
+    desc: List tasks
+    cmds:
+      - task --list
+
+  install:
+    desc: Sync dependencies with uv
+    cmds:
+      - uv sync
+
+  lock:
+    desc: Regenerate uv.lock
+    cmds:
+      - uv lock
+
+  run:
+    desc: Run the exporter locally (reads .env)
+    cmds:
+      - uv run ovo-prometheus
+
+  lint:
+    desc: Ruff check + format
+    cmds:
+      - uv run ruff check --fix .
+      - uv run ruff format .
+
+  docker:build:
+    desc: Build the exporter image
+    cmds:
+      - docker build -t ovoprometheus .
+
+  docker:run:
+    desc: Run the exporter container (reads .env)
+    cmds:
+      - docker run --rm --env-file .env -p 9225:9225 ovoprometheus
